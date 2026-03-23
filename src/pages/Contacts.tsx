@@ -36,7 +36,7 @@ const statusColors: Record<string, string> = {
   inactive: "bg-muted text-muted-foreground",
 };
 
-const emptyContact = { name: "", phone: "", email: "", status: "lead" as const, notes: "" };
+const emptyContact = { name: "", phone: "", email: "", status: "lead" as "lead" | "client" | "inactive", notes: "" };
 
 const Contacts = () => {
   const { user, role } = useAuth();

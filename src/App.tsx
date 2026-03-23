@@ -3,9 +3,15 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
-import Leads from "./pages/Leads";
+import Contacts from "./pages/Contacts";
+import Pipeline from "./pages/Pipeline";
 import Cases from "./pages/Cases";
 import Clients from "./pages/Clients";
 import Deadlines from "./pages/Deadlines";
@@ -23,22 +29,28 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <div className="dark">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/leads" element={<Leads />} />
-              <Route path="/casos" element={<Cases />} />
-              <Route path="/clientes" element={<Clients />} />
-              <Route path="/prazos" element={<Deadlines />} />
-              <Route path="/relatorios" element={<Reports />} />
-              <Route path="/equipe" element={<Team />} />
-              <Route path="/configuracoes" element={<Settings />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </div>
+        <AuthProvider>
+          <div className="dark">
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/contatos" element={<Contacts />} />
+                <Route path="/pipeline" element={<Pipeline />} />
+                <Route path="/casos" element={<Cases />} />
+                <Route path="/clientes" element={<Clients />} />
+                <Route path="/prazos" element={<Deadlines />} />
+                <Route path="/relatorios" element={<Reports />} />
+                <Route path="/equipe" element={<Team />} />
+                <Route path="/configuracoes" element={<Settings />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

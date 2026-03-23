@@ -7,17 +7,26 @@ import { Scale } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const Login = () => {
+const Register = () => {
   const navigate = useNavigate();
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: fullName },
+        emailRedirectTo: window.location.origin,
+      },
+    });
+
     setLoading(false);
 
     if (error) {
@@ -25,8 +34,8 @@ const Login = () => {
       return;
     }
 
-    toast.success("Login realizado com sucesso!");
-    navigate("/");
+    toast.success("Verifique seu e-mail para confirmar o cadastro.");
+    navigate("/login");
   };
 
   return (
@@ -42,8 +51,9 @@ const Login = () => {
             <Scale className="w-10 h-10 text-card" />
           </div>
           <h1 className="font-serif text-4xl font-bold gold-text mb-4">Assad CRM</h1>
-          <p className="text-sidebar-foreground text-lg leading-relaxed max-w-md">Dra. Helen Assad Advogados & Associados</p>
-          <p className="text-sidebar-muted-foreground text-sm mt-2">Controle de Prazos · BPC/LOAS & Salário Maternidade</p>
+          <p className="text-sidebar-foreground text-lg leading-relaxed max-w-md">
+            Dra. Helen Assad Advogados & Associados
+          </p>
         </div>
       </div>
 
@@ -56,29 +66,30 @@ const Login = () => {
             <h1 className="font-serif text-2xl font-bold gold-text">Assad CRM</h1>
           </div>
 
-          <h2 className="font-serif text-2xl font-bold mb-1">Entrar</h2>
-          <p className="text-muted-foreground text-sm mb-8">Acesse sua conta para continuar</p>
+          <h2 className="font-serif text-2xl font-bold mb-1">Criar Conta</h2>
+          <p className="text-muted-foreground text-sm mb-8">Registre-se para acessar o sistema</p>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleRegister} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Nome Completo</Label>
+              <Input id="fullName" placeholder="Seu nome" value={fullName} onChange={(e) => setFullName(e.target.value)} className="bg-secondary border-border" required />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
               <Input id="email" type="email" placeholder="seu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-secondary border-border" required />
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Senha</Label>
-                <Link to="/forgot-password" className="text-xs text-primary hover:underline">Esqueceu a senha?</Link>
-              </div>
-              <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-secondary border-border" required />
+              <Label htmlFor="password">Senha</Label>
+              <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-secondary border-border" required minLength={6} />
             </div>
             <Button type="submit" disabled={loading} className="w-full gold-gradient text-primary-foreground font-semibold hover:opacity-90 transition-opacity">
-              {loading ? "Entrando..." : "Entrar"}
+              {loading ? "Registrando..." : "Criar Conta"}
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-6">
-            Não tem conta?{" "}
-            <Link to="/register" className="text-primary hover:underline">Criar conta</Link>
+            Já tem uma conta?{" "}
+            <Link to="/login" className="text-primary hover:underline">Entrar</Link>
           </p>
           <p className="text-center text-xs text-muted-foreground mt-8">© 2026 Dra. Helen Assad Advogados & Associados</p>
         </div>
@@ -87,4 +98,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

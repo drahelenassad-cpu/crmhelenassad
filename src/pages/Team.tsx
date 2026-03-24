@@ -44,10 +44,10 @@ const Team = () => {
   const [inviting, setInviting] = useState(false);
 
   const fetchMembers = async () => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("id, full_name, email, created_at, user_roles(role)")
-      .order("created_at", { ascending: true });
+    const [{ data: profiles, error }, { data: roles }] = await Promise.all([
+      supabase.from("profiles").select("id, full_name, email, created_at").order("created_at", { ascending: true }),
+      supabase.from("user_roles").select("user_id, role"),
+    ]);
 
     if (error) {
       toast.error("Erro ao carregar equipe");
@@ -55,11 +55,14 @@ const Team = () => {
       return;
     }
 
-    const mapped: TeamMember[] = (data ?? []).map((p: any) => ({
+    const rolesMap: Record<string, "admin" | "user"> = {};
+    (roles ?? []).forEach((r: any) => { rolesMap[r.user_id] = r.role; });
+
+    const mapped: TeamMember[] = (profiles ?? []).map((p: any) => ({
       id: p.id,
       full_name: p.full_name || "(sem nome)",
       email: p.email || "",
-      role: p.user_roles?.[0]?.role ?? "user",
+      role: rolesMap[p.id] ?? "user",
       created_at: p.created_at,
     }));
 

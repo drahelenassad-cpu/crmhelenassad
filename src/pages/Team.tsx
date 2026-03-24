@@ -21,6 +21,7 @@ type TeamMember = {
   full_name: string;
   email: string;
   role: "admin" | "user";
+  position: string;
   created_at: string;
 };
 
@@ -34,6 +35,34 @@ const roleColors: Record<string, string> = {
   user: "bg-muted text-muted-foreground",
 };
 
+const positions = [
+  { value: "", label: "Sem cargo" },
+  { value: "assistente_juridico", label: "Assistente Jurídico" },
+  { value: "pos_vendas", label: "Pós-vendas" },
+  { value: "advogado", label: "Advogado" },
+];
+
+const positionLabels: Record<string, string> = {
+  "": "—",
+  assistente_juridico: "Assistente Jurídico",
+  pos_vendas: "Pós-vendas",
+  advogado: "Advogado",
+};
+
+const teamLabels: Record<string, string> = {
+  "": "—",
+  assistente_juridico: "Time Comercial",
+  pos_vendas: "Time Jurídico",
+  advogado: "Jurídico",
+};
+
+const positionColors: Record<string, string> = {
+  "": "",
+  assistente_juridico: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+  pos_vendas: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  advogado: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+};
+
 const Team = () => {
   const { role: currentUserRole } = useAuth();
   const [members, setMembers] = useState<TeamMember[]>([]);
@@ -41,11 +70,12 @@ const Team = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<"admin" | "user">("user");
+  const [invitePosition, setInvitePosition] = useState("");
   const [inviting, setInviting] = useState(false);
 
   const fetchMembers = async () => {
     const [{ data: profiles, error }, { data: roles }] = await Promise.all([
-      supabase.from("profiles").select("id, full_name, email, created_at").order("created_at", { ascending: true }),
+      supabase.from("profiles").select("id, full_name, email, created_at, position").order("created_at", { ascending: true }),
       supabase.from("user_roles").select("user_id, role"),
     ]);
 
@@ -63,6 +93,7 @@ const Team = () => {
       full_name: p.full_name || "(sem nome)",
       email: p.email || "",
       role: rolesMap[p.id] ?? "user",
+      position: p.position || "",
       created_at: p.created_at,
     }));
 
@@ -79,7 +110,18 @@ const Team = () => {
       .eq("user_id", userId);
 
     if (error) { toast.error("Erro ao alterar função"); return; }
-    toast.success("Função atualizada!");
+    toast.success("Nível de acesso atualizado!");
+    fetchMembers();
+  };
+
+  const handleChangePosition = async (userId: string, newPosition: string) => {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ position: newPosition } as any)
+      .eq("id", userId);
+
+    if (error) { toast.error("Erro ao alterar cargo"); return; }
+    toast.success("Cargo atualizado!");
     fetchMembers();
   };
 
@@ -102,9 +144,10 @@ const Team = () => {
 
     if (error) { toast.error(error.message); return; }
 
-    toast.success(`Convite enviado para ${inviteEmail}! O usuário receberá um e-mail para confirmar o acesso.`);
+    toast.success(`Convite enviado para ${inviteEmail}!`);
     setInviteEmail("");
     setInviteRole("user");
+    setInvitePosition("");
     setDialogOpen(false);
     setTimeout(fetchMembers, 1500);
   };
@@ -114,7 +157,7 @@ const Team = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-serif text-2xl font-bold">Equipe</h1>
-          <p className="text-muted-foreground text-sm">Usuários com acesso ao sistema</p>
+          <p className="text-muted-foreground text-sm">Gerencie os membros, cargos e níveis de acesso</p>
         </div>
         {currentUserRole === "admin" && (
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -139,7 +182,7 @@ const Team = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Função</Label>
+                  <Label>Nível de Acesso</Label>
                   <Select value={inviteRole} onValueChange={(v) => setInviteRole(v as "admin" | "user")}>
                     <SelectTrigger className="bg-secondary border-border">
                       <SelectValue />
@@ -147,6 +190,20 @@ const Team = () => {
                     <SelectContent>
                       <SelectItem value="user">Usuário</SelectItem>
                       <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-[11px] text-muted-foreground">Admin: acesso total. Usuário: cria e edita, sem deletar.</p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Cargo na Equipe</Label>
+                  <Select value={invitePosition} onValueChange={setInvitePosition}>
+                    <SelectTrigger className="bg-secondary border-border">
+                      <SelectValue placeholder="Selecione o cargo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {positions.filter(p => p.value).map(p => (
+                        <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -177,7 +234,9 @@ const Team = () => {
               <TableRow className="border-border hover:bg-transparent">
                 <TableHead className="text-muted-foreground">Membro</TableHead>
                 <TableHead className="text-muted-foreground">E-mail</TableHead>
-                <TableHead className="text-muted-foreground">Função</TableHead>
+                <TableHead className="text-muted-foreground">Cargo</TableHead>
+                <TableHead className="text-muted-foreground">Time</TableHead>
+                <TableHead className="text-muted-foreground">Acesso</TableHead>
                 <TableHead className="text-muted-foreground">Desde</TableHead>
                 {currentUserRole === "admin" && (
                   <TableHead className="text-muted-foreground w-16">Ações</TableHead>
@@ -196,6 +255,33 @@ const Team = () => {
                     </div>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{m.email}</TableCell>
+                  <TableCell>
+                    {currentUserRole === "admin" ? (
+                      <Select
+                        value={m.position || "none"}
+                        onValueChange={(v) => handleChangePosition(m.id, v === "none" ? "" : v)}
+                      >
+                        <SelectTrigger className={`w-40 h-7 text-[11px] border ${m.position ? positionColors[m.position] : "border-border text-muted-foreground"}`}>
+                          <SelectValue placeholder="Selecionar" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Sem cargo</SelectItem>
+                          {positions.filter(p => p.value).map(p => (
+                            <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Badge variant="outline" className={`text-[10px] ${positionColors[m.position] || ""}`}>
+                        {positionLabels[m.position] || "—"}
+                      </Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-xs text-muted-foreground">
+                      {teamLabels[m.position] || "—"}
+                    </span>
+                  </TableCell>
                   <TableCell>
                     {currentUserRole === "admin" ? (
                       <Select
@@ -235,9 +321,21 @@ const Team = () => {
 
       <Card className="bg-card border-border">
         <CardContent className="p-4">
-          <p className="text-xs text-muted-foreground">
-            <strong className="text-foreground">Como funciona:</strong> o primeiro usuário cadastrado vira Admin automaticamente. Os demais entram como Usuário e podem ter a função alterada pelo Admin nesta tela.
-          </p>
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">
+              <strong className="text-foreground">Cargos disponíveis:</strong>
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {positions.filter(p => p.value).map(p => (
+                <Badge key={p.value} variant="outline" className={`text-[10px] ${positionColors[p.value]}`}>
+                  {p.label} — {teamLabels[p.value]}
+                </Badge>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              <strong className="text-foreground">Níveis de acesso:</strong> Admin (acesso total) · Usuário (cria e edita, sem deletar ou gerenciar equipe).
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

@@ -49,10 +49,65 @@ export type Database = {
           },
         ]
       }
-      contacts: {
+      cases: {
         Row: {
+          case_number: string
+          case_type: string
+          client_name: string
+          contact_id: string | null
           created_at: string
           created_by: string
+          id: string
+          lawyer_name: string
+          notes: string | null
+          stage: Database["public"]["Enums"]["case_stage"]
+          updated_at: string
+          urgency: Database["public"]["Enums"]["case_urgency"]
+        }
+        Insert: {
+          case_number?: string
+          case_type?: string
+          client_name?: string
+          contact_id?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          lawyer_name?: string
+          notes?: string | null
+          stage?: Database["public"]["Enums"]["case_stage"]
+          updated_at?: string
+          urgency?: Database["public"]["Enums"]["case_urgency"]
+        }
+        Update: {
+          case_number?: string
+          case_type?: string
+          client_name?: string
+          contact_id?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          lawyer_name?: string
+          notes?: string | null
+          stage?: Database["public"]["Enums"]["case_stage"]
+          updated_at?: string
+          urgency?: Database["public"]["Enums"]["case_urgency"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cases_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contacts: {
+        Row: {
+          cpf: string | null
+          created_at: string
+          created_by: string
+          date_of_birth: string | null
           email: string | null
           id: string
           name: string
@@ -63,8 +118,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          cpf?: string | null
           created_at?: string
           created_by: string
+          date_of_birth?: string | null
           email?: string | null
           id?: string
           name: string
@@ -75,8 +132,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          cpf?: string | null
           created_at?: string
           created_by?: string
+          date_of_birth?: string | null
           email?: string | null
           id?: string
           name?: string
@@ -88,12 +147,63 @@ export type Database = {
         }
         Relationships: []
       }
+      deadlines: {
+        Row: {
+          case_id: string | null
+          case_number: string
+          client_name: string
+          completed: boolean
+          created_at: string
+          created_by: string
+          deadline_type: string
+          due_date: string
+          id: string
+          lawyer_name: string
+          updated_at: string
+        }
+        Insert: {
+          case_id?: string | null
+          case_number?: string
+          client_name?: string
+          completed?: boolean
+          created_at?: string
+          created_by: string
+          deadline_type?: string
+          due_date: string
+          id?: string
+          lawyer_name?: string
+          updated_at?: string
+        }
+        Update: {
+          case_id?: string | null
+          case_number?: string
+          client_name?: string
+          completed?: boolean
+          created_at?: string
+          created_by?: string
+          deadline_type?: string
+          due_date?: string
+          id?: string
+          lawyer_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deadlines_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
           email: string | null
           full_name: string
           id: string
+          position: string
           updated_at: string
         }
         Insert: {
@@ -101,6 +211,7 @@ export type Database = {
           email?: string | null
           full_name?: string
           id: string
+          position?: string
           updated_at?: string
         }
         Update: {
@@ -108,7 +219,29 @@ export type Database = {
           email?: string | null
           full_name?: string
           id?: string
+          position?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string
+          value?: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: string
         }
         Relationships: []
       }
@@ -145,6 +278,16 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      case_stage:
+        | "contract_signed"
+        | "document_collection"
+        | "petition_filed"
+        | "inss_analysis"
+        | "medical_exam"
+        | "awaiting_decision"
+        | "approved"
+        | "denied"
+      case_urgency: "green" | "yellow" | "orange" | "red"
       contact_status: "lead" | "client" | "inactive"
       pipeline_stage:
         | "new_lead"
@@ -280,6 +423,17 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      case_stage: [
+        "contract_signed",
+        "document_collection",
+        "petition_filed",
+        "inss_analysis",
+        "medical_exam",
+        "awaiting_decision",
+        "approved",
+        "denied",
+      ],
+      case_urgency: ["green", "yellow", "orange", "red"],
       contact_status: ["lead", "client", "inactive"],
       pipeline_stage: [
         "new_lead",

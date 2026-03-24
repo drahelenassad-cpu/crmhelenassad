@@ -7,8 +7,8 @@ import {
   BarChart3,
   UsersRound,
   Settings,
-  Scale,
 } from "lucide-react";
+import logoHelenAssad from "@/assets/logo-helen-assad.png";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";

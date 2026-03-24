@@ -52,13 +52,11 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
       <SidebarHeader className="p-4 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg gold-gradient flex items-center justify-center flex-shrink-0">
-            <Scale className="w-5 h-5 text-sidebar-primary-foreground" />
-          </div>
+          <img src={logoHelenAssad} alt="Helen Assad" className="w-9 h-9 rounded-lg object-contain bg-white flex-shrink-0" />
           {!collapsed && (
             <div className="min-w-0">
-              <h2 className="font-serif text-sm font-bold text-sidebar-primary truncate">Assad CRM</h2>
-              <p className="text-[10px] text-sidebar-muted-foreground truncate">Dra. Helen Assad</p>
+              <h2 className="font-serif text-sm font-bold text-sidebar-primary truncate">Helen Assad</h2>
+              <p className="text-[10px] text-sidebar-muted-foreground truncate">Advogada Previdenciária</p>
             </div>
           )}
         </div>

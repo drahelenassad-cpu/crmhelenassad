@@ -68,12 +68,28 @@ const Cases = () => {
 
   const handleSave = async () => {
     if (!form.client_name.trim()) { toast.error("Nome do cliente é obrigatório"); return; }
-    const err = editing
-      ? (await supabase.from("cases" as any).update(form).eq("id", editing.id)).error
-      : (await supabase.from("cases" as any).insert({ ...form, created_by: user!.id })).error;
-    if (err) { toast.error("Erro ao salvar caso"); return; }
+    const isNew = !editing;
+    const result = isNew
+      ? await supabase.from("cases" as any).insert({ ...form, created_by: user!.id }).select("id").single()
+      : await supabase.from("cases" as any).update(form).eq("id", editing!.id).select("id").single();
+    if (result.error) { toast.error("Erro ao salvar caso"); return; }
+
+    // Auto-notify assigned responsible
+    if (form.lawyer_name) {
+      const assigned = teamMembers.find(m => m.full_name === form.lawyer_name);
+      if (assigned && assigned.id !== user!.id) {
+        const caseId = isNew ? (result.data as any)?.id : editing!.id;
+        await supabase.from("notifications" as any).insert({
+          user_id: assigned.id,
+          case_id: caseId,
+          type: "assignment",
+          message: `Você foi designado como responsável no caso de ${form.client_name}`,
+        });
+      }
+    }
+
     toast.success(editing ? "Caso atualizado!" : "Caso criado!");
-    setDialogOpen(false); setEditing(null); setForm(empty); fetch();
+    setDialogOpen(false); setEditing(null); setForm(empty); setResponsibleSearch(""); fetch();
   };
 
   const handleDelete = async (id: string) => {

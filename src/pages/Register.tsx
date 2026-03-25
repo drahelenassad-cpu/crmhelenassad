@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Scale } from "lucide-react";
+import logoHelen from "@/assets/logo-helen-assad.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -47,23 +47,16 @@ const Register = () => {
           style={{ backgroundImage: "radial-gradient(circle at 30% 50%, hsl(45,70%,47%) 0%, transparent 50%)" }}
         />
         <div className="relative text-center px-12">
-          <div className="w-20 h-20 rounded-2xl gold-gradient flex items-center justify-center mx-auto mb-8 animate-pulse-gold">
-            <Scale className="w-10 h-10 text-card" />
-          </div>
-          <h1 className="font-serif text-4xl font-bold gold-text mb-4">Assad CRM</h1>
-          <p className="text-sidebar-foreground text-lg leading-relaxed max-w-md">
-            Dra. Helen Assad Advogados & Associados
-          </p>
-        </div>
+          <img src={logoHelen} alt="Dra. Helen Assad" className="w-48 h-48 object-contain mx-auto mb-6" />
+          <h1 className="font-serif text-3xl font-bold gold-text mb-3">Dra. Helen Assad</h1>
+          <p className="text-gray-300 text-lg leading-relaxed max-w-md">Advogados & Associados</p>
       </div>
 
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-sm">
           <div className="lg:hidden text-center mb-8">
-            <div className="w-14 h-14 rounded-xl gold-gradient flex items-center justify-center mx-auto mb-4">
-              <Scale className="w-7 h-7 text-card" />
-            </div>
-            <h1 className="font-serif text-2xl font-bold gold-text">Assad CRM</h1>
+            <img src={logoHelen} alt="Dra. Helen Assad" className="w-24 h-24 object-contain mx-auto mb-2" />
+            <h1 className="font-serif text-2xl font-bold gold-text">Dra. Helen Assad</h1>
           </div>
 
           <h2 className="font-serif text-2xl font-bold mb-1">Criar Conta</h2>

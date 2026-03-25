@@ -206,7 +206,7 @@ const Cases = () => {
             <Table>
               <TableHeader><TableRow className="border-border hover:bg-transparent">
                 <TableHead className="text-muted-foreground">Caso</TableHead><TableHead className="text-muted-foreground">Cliente</TableHead>
-                <TableHead className="text-muted-foreground">Tipo</TableHead><TableHead className="text-muted-foreground">Advogado</TableHead>
+                <TableHead className="text-muted-foreground">Tipo</TableHead><TableHead className="text-muted-foreground">Responsável</TableHead>
                 <TableHead className="text-muted-foreground">Etapa</TableHead><TableHead className="text-muted-foreground">Urgência</TableHead>
                 <TableHead className="text-muted-foreground w-20">Ações</TableHead>
               </TableRow></TableHeader>
@@ -221,7 +221,7 @@ const Cases = () => {
                     <TableCell><Badge className={`text-[10px] ${urgencyColors[c.urgency]}`}>{urgencyLabels[c.urgency]}</Badge></TableCell>
                     <TableCell>
                       <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(c); setForm({ client_name: c.client_name, case_type: c.case_type, lawyer_name: c.lawyer_name, stage: c.stage, urgency: c.urgency, notes: c.notes, valor_previsto: (c as any).valor_previsto || "" }); setDialogOpen(true); }}><Pencil className="w-3.5 h-3.5" /></Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(c); setForm({ client_name: c.client_name, case_type: c.case_type, lawyer_name: c.lawyer_name, stage: c.stage, urgency: c.urgency, notes: c.notes, valor_previsto: (c as any).valor_previsto || "" }); setResponsibleSearch(c.lawyer_name); setDialogOpen(true); }}><Pencil className="w-3.5 h-3.5" /></Button>
                         {role === "admin" && <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(c.id)}><Trash2 className="w-3.5 h-3.5" /></Button>}
                       </div>
                     </TableCell>

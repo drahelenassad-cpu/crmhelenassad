@@ -58,6 +58,14 @@ const Cases = () => {
 
   useEffect(() => { fetch(); }, []);
 
+  useEffect(() => {
+    const loadTeam = async () => {
+      const { data } = await supabase.from("profiles").select("id, full_name, email");
+      setTeamMembers((data as TeamMember[]) ?? []);
+    };
+    loadTeam();
+  }, []);
+
   const handleSave = async () => {
     if (!form.client_name.trim()) { toast.error("Nome do cliente é obrigatório"); return; }
     const err = editing

@@ -34,6 +34,8 @@ const urgencyColors: Record<string, string> = { green: "bg-success/20 text-succe
 
 const empty = { client_name: "", case_type: "", lawyer_name: "", stage: "contract_signed", urgency: "green", notes: "", valor_previsto: "" };
 
+type TeamMember = { id: string; full_name: string; email: string | null };
+
 const Cases = () => {
   const { user, role } = useAuth();
   const [cases, setCases] = useState<Case[]>([]);
@@ -43,6 +45,9 @@ const Cases = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Case | null>(null);
   const [form, setForm] = useState(empty);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [responsibleSearch, setResponsibleSearch] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const fetch = async () => {
     const { data, error } = await supabase.from("cases" as any).select("*").order("created_at", { ascending: false });

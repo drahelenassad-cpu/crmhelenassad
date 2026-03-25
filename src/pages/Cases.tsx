@@ -118,7 +118,42 @@ const Cases = () => {
             <div className="space-y-4 pt-2">
               <div className="space-y-2"><Label>Cliente *</Label><Input value={form.client_name} onChange={(e) => setForm({ ...form, client_name: e.target.value })} className="bg-secondary border-border" /></div>
               <div className="space-y-2"><Label>Tipo de Caso</Label><Input value={form.case_type} onChange={(e) => setForm({ ...form, case_type: e.target.value })} className="bg-secondary border-border" placeholder="Ex: BPC/LOAS – Deficiência" /></div>
-              <div className="space-y-2"><Label>Advogado Responsável</Label><Input value={form.lawyer_name} onChange={(e) => setForm({ ...form, lawyer_name: e.target.value })} className="bg-secondary border-border" /></div>
+              <div className="space-y-2 relative">
+                <Label>Responsável</Label>
+                <Input
+                  value={responsibleSearch}
+                  onChange={(e) => {
+                    setResponsibleSearch(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                  className="bg-secondary border-border"
+                  placeholder="Digite o nome do membro..."
+                />
+                {showSuggestions && responsibleSearch.length > 0 && (
+                  <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-card border border-border rounded-md shadow-lg max-h-40 overflow-y-auto">
+                    {teamMembers
+                      .filter(m => m.full_name.toLowerCase().includes(responsibleSearch.toLowerCase()))
+                      .map(m => (
+                        <button
+                          key={m.id}
+                          type="button"
+                          className="w-full text-left px-3 py-2 hover:bg-accent/50 text-sm text-foreground"
+                          onClick={() => {
+                            setForm({ ...form, lawyer_name: m.full_name });
+                            setResponsibleSearch(m.full_name);
+                            setShowSuggestions(false);
+                          }}
+                        >
+                          {m.full_name} <span className="text-muted-foreground text-xs">({m.email})</span>
+                        </button>
+                      ))}
+                    {teamMembers.filter(m => m.full_name.toLowerCase().includes(responsibleSearch.toLowerCase())).length === 0 && (
+                      <p className="px-3 py-2 text-sm text-muted-foreground">Nenhum membro encontrado</p>
+                    )}
+                  </div>
+                )}
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2"><Label>Etapa</Label>
                   <Select value={form.stage} onValueChange={(v) => setForm({ ...form, stage: v })}>

@@ -63,6 +63,7 @@ export type Database = {
           stage: Database["public"]["Enums"]["case_stage"]
           updated_at: string
           urgency: Database["public"]["Enums"]["case_urgency"]
+          valor_previsto: number | null
         }
         Insert: {
           case_number?: string
@@ -77,6 +78,7 @@ export type Database = {
           stage?: Database["public"]["Enums"]["case_stage"]
           updated_at?: string
           urgency?: Database["public"]["Enums"]["case_urgency"]
+          valor_previsto?: number | null
         }
         Update: {
           case_number?: string
@@ -91,6 +93,7 @@ export type Database = {
           stage?: Database["public"]["Enums"]["case_stage"]
           updated_at?: string
           urgency?: Database["public"]["Enums"]["case_urgency"]
+          valor_previsto?: number | null
         }
         Relationships: [
           {

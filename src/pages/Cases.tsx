@@ -32,7 +32,7 @@ const stageColors: Record<string, string> = {
 const urgencyLabels: Record<string, string> = { green: "No Prazo", yellow: "Atenção", orange: "Crítico", red: "Escalado" };
 const urgencyColors: Record<string, string> = { green: "bg-success/20 text-success", yellow: "bg-warning/20 text-warning", orange: "bg-critical/20 text-critical", red: "bg-destructive/20 text-destructive" };
 
-const empty = { client_name: "", case_type: "", lawyer_name: "", stage: "contract_signed", urgency: "green", notes: "" };
+const empty = { client_name: "", case_type: "", lawyer_name: "", stage: "contract_signed", urgency: "green", notes: "", valor_previsto: "" };
 
 const Cases = () => {
   const { user, role } = useAuth();
@@ -107,6 +107,7 @@ const Cases = () => {
                   </Select>
                 </div>
               </div>
+              <div className="space-y-2"><Label>Valor Previsto (R$)</Label><Input type="number" step="0.01" min="0" placeholder="0,00" value={form.valor_previsto} onChange={(e) => setForm({ ...form, valor_previsto: e.target.value })} className="bg-secondary border-border" /></div>
               <div className="space-y-2"><Label>Observações</Label><Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="bg-secondary border-border" /></div>
               <Button className="w-full gold-gradient text-primary-foreground hover:opacity-90" onClick={handleSave}>{editing ? "Salvar Alterações" : "Criar Caso"}</Button>
             </div>
@@ -156,7 +157,7 @@ const Cases = () => {
                     <TableCell><Badge className={`text-[10px] ${urgencyColors[c.urgency]}`}>{urgencyLabels[c.urgency]}</Badge></TableCell>
                     <TableCell>
                       <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(c); setForm({ client_name: c.client_name, case_type: c.case_type, lawyer_name: c.lawyer_name, stage: c.stage, urgency: c.urgency, notes: c.notes }); setDialogOpen(true); }}><Pencil className="w-3.5 h-3.5" /></Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(c); setForm({ client_name: c.client_name, case_type: c.case_type, lawyer_name: c.lawyer_name, stage: c.stage, urgency: c.urgency, notes: c.notes, valor_previsto: (c as any).valor_previsto || "" }); setDialogOpen(true); }}><Pencil className="w-3.5 h-3.5" /></Button>
                         {role === "admin" && <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(c.id)}><Trash2 className="w-3.5 h-3.5" /></Button>}
                       </div>
                     </TableCell>

@@ -1,0 +1,1 @@
+ALTER TABLE public.cases ADD COLUMN IF NOT EXISTS valor_previsto NUMERIC(12,2) DEFAULT 0;

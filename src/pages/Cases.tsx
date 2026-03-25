@@ -34,6 +34,8 @@ const urgencyColors: Record<string, string> = { green: "bg-success/20 text-succe
 
 const empty = { client_name: "", case_type: "", lawyer_name: "", stage: "contract_signed", urgency: "green", notes: "", valor_previsto: "" };
 
+type TeamMember = { id: string; full_name: string; email: string | null };
+
 const Cases = () => {
   const { user, role } = useAuth();
   const [cases, setCases] = useState<Case[]>([]);
@@ -43,6 +45,9 @@ const Cases = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Case | null>(null);
   const [form, setForm] = useState(empty);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [responsibleSearch, setResponsibleSearch] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   const fetch = async () => {
     const { data, error } = await supabase.from("cases" as any).select("*").order("created_at", { ascending: false });
@@ -53,14 +58,38 @@ const Cases = () => {
 
   useEffect(() => { fetch(); }, []);
 
+  useEffect(() => {
+    const loadTeam = async () => {
+      const { data } = await supabase.from("profiles").select("id, full_name, email");
+      setTeamMembers((data as TeamMember[]) ?? []);
+    };
+    loadTeam();
+  }, []);
+
   const handleSave = async () => {
     if (!form.client_name.trim()) { toast.error("Nome do cliente é obrigatório"); return; }
-    const err = editing
-      ? (await supabase.from("cases" as any).update(form).eq("id", editing.id)).error
-      : (await supabase.from("cases" as any).insert({ ...form, created_by: user!.id })).error;
-    if (err) { toast.error("Erro ao salvar caso"); return; }
+    const isNew = !editing;
+    const result = isNew
+      ? await supabase.from("cases" as any).insert({ ...form, created_by: user!.id }).select("id").single()
+      : await supabase.from("cases" as any).update(form).eq("id", editing!.id).select("id").single();
+    if (result.error) { toast.error("Erro ao salvar caso"); return; }
+
+    // Auto-notify assigned responsible
+    if (form.lawyer_name) {
+      const assigned = teamMembers.find(m => m.full_name === form.lawyer_name);
+      if (assigned && assigned.id !== user!.id) {
+        const caseId = isNew ? (result.data as any)?.id : editing!.id;
+        await supabase.from("notifications" as any).insert({
+          user_id: assigned.id,
+          case_id: caseId,
+          type: "assignment",
+          message: `Você foi designado como responsável no caso de ${form.client_name}`,
+        });
+      }
+    }
+
     toast.success(editing ? "Caso atualizado!" : "Caso criado!");
-    setDialogOpen(false); setEditing(null); setForm(empty); fetch();
+    setDialogOpen(false); setEditing(null); setForm(empty); setResponsibleSearch(""); fetch();
   };
 
   const handleDelete = async (id: string) => {
@@ -80,7 +109,7 @@ const Cases = () => {
         <div><h1 className="font-serif text-2xl font-bold">Casos</h1><p className="text-muted-foreground text-sm">Gestão de processos previdenciários</p></div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" className="gold-gradient text-primary-foreground hover:opacity-90" onClick={() => { setEditing(null); setForm(empty); }}>
+            <Button size="sm" className="gold-gradient text-primary-foreground hover:opacity-90" onClick={() => { setEditing(null); setForm(empty); setResponsibleSearch(""); }}>
               <Plus className="w-4 h-4 mr-1" /> Novo Caso
             </Button>
           </DialogTrigger>
@@ -89,7 +118,42 @@ const Cases = () => {
             <div className="space-y-4 pt-2">
               <div className="space-y-2"><Label>Cliente *</Label><Input value={form.client_name} onChange={(e) => setForm({ ...form, client_name: e.target.value })} className="bg-secondary border-border" /></div>
               <div className="space-y-2"><Label>Tipo de Caso</Label><Input value={form.case_type} onChange={(e) => setForm({ ...form, case_type: e.target.value })} className="bg-secondary border-border" placeholder="Ex: BPC/LOAS – Deficiência" /></div>
-              <div className="space-y-2"><Label>Advogado Responsável</Label><Input value={form.lawyer_name} onChange={(e) => setForm({ ...form, lawyer_name: e.target.value })} className="bg-secondary border-border" /></div>
+              <div className="space-y-2 relative">
+                <Label>Responsável</Label>
+                <Input
+                  value={responsibleSearch}
+                  onChange={(e) => {
+                    setResponsibleSearch(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                  className="bg-secondary border-border"
+                  placeholder="Digite o nome do membro..."
+                />
+                {showSuggestions && responsibleSearch.length > 0 && (
+                  <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-card border border-border rounded-md shadow-lg max-h-40 overflow-y-auto">
+                    {teamMembers
+                      .filter(m => m.full_name.toLowerCase().includes(responsibleSearch.toLowerCase()))
+                      .map(m => (
+                        <button
+                          key={m.id}
+                          type="button"
+                          className="w-full text-left px-3 py-2 hover:bg-accent/50 text-sm text-foreground"
+                          onClick={() => {
+                            setForm({ ...form, lawyer_name: m.full_name });
+                            setResponsibleSearch(m.full_name);
+                            setShowSuggestions(false);
+                          }}
+                        >
+                          {m.full_name} <span className="text-muted-foreground text-xs">({m.email})</span>
+                        </button>
+                      ))}
+                    {teamMembers.filter(m => m.full_name.toLowerCase().includes(responsibleSearch.toLowerCase())).length === 0 && (
+                      <p className="px-3 py-2 text-sm text-muted-foreground">Nenhum membro encontrado</p>
+                    )}
+                  </div>
+                )}
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2"><Label>Etapa</Label>
                   <Select value={form.stage} onValueChange={(v) => setForm({ ...form, stage: v })}>
@@ -142,7 +206,7 @@ const Cases = () => {
             <Table>
               <TableHeader><TableRow className="border-border hover:bg-transparent">
                 <TableHead className="text-muted-foreground">Caso</TableHead><TableHead className="text-muted-foreground">Cliente</TableHead>
-                <TableHead className="text-muted-foreground">Tipo</TableHead><TableHead className="text-muted-foreground">Advogado</TableHead>
+                <TableHead className="text-muted-foreground">Tipo</TableHead><TableHead className="text-muted-foreground">Responsável</TableHead>
                 <TableHead className="text-muted-foreground">Etapa</TableHead><TableHead className="text-muted-foreground">Urgência</TableHead>
                 <TableHead className="text-muted-foreground w-20">Ações</TableHead>
               </TableRow></TableHeader>
@@ -157,7 +221,7 @@ const Cases = () => {
                     <TableCell><Badge className={`text-[10px] ${urgencyColors[c.urgency]}`}>{urgencyLabels[c.urgency]}</Badge></TableCell>
                     <TableCell>
                       <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(c); setForm({ client_name: c.client_name, case_type: c.case_type, lawyer_name: c.lawyer_name, stage: c.stage, urgency: c.urgency, notes: c.notes, valor_previsto: (c as any).valor_previsto || "" }); setDialogOpen(true); }}><Pencil className="w-3.5 h-3.5" /></Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => { setEditing(c); setForm({ client_name: c.client_name, case_type: c.case_type, lawyer_name: c.lawyer_name, stage: c.stage, urgency: c.urgency, notes: c.notes, valor_previsto: (c as any).valor_previsto || "" }); setResponsibleSearch(c.lawyer_name); setDialogOpen(true); }}><Pencil className="w-3.5 h-3.5" /></Button>
                         {role === "admin" && <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDelete(c.id)}><Trash2 className="w-3.5 h-3.5" /></Button>}
                       </div>
                     </TableCell>

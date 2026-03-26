@@ -6,12 +6,14 @@ import { Label } from "@/components/ui/label";
 import logoHelen from "@/assets/logo-helen-assad.png";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +67,12 @@ const Login = () => {
                 <Label htmlFor="password">Senha</Label>
                 <Link to="/forgot-password" className="text-xs text-primary hover:underline">Esqueceu a senha?</Link>
               </div>
-              <Input id="password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-secondary border-border" required />
+              <div className="relative">
+                <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-secondary border-border text-foreground pr-10" required />
+                <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0 h-10 w-10 text-muted-foreground hover:text-foreground" onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </Button>
+              </div>
             </div>
             <Button type="submit" disabled={loading} className="w-full gold-gradient text-primary-foreground font-semibold hover:opacity-90 transition-opacity">
               {loading ? "Entrando..." : "Entrar"}

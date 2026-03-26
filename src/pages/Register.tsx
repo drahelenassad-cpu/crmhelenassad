@@ -51,7 +51,7 @@ const Register = () => {
         <div className="relative text-center px-12">
           <img src={logoHelen} alt="Dra. Helen Assad" className="w-48 h-48 object-contain mx-auto mb-6" />
           <h1 className="font-serif text-3xl font-bold gold-text mb-3">Dra. Helen Assad</h1>
-          <p className="text-gray-300 text-lg leading-relaxed max-w-md">Advogados & Associados</p>
+          <p className="text-gray-300 text-lg leading-relaxed max-w-md">Controle de Prazos - Advocacia Previdenciária</p>
         </div>
       </div>
 

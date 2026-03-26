@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -35,14 +35,37 @@ const Deadlines = () => {
   const [editing, setEditing] = useState<Deadline | null>(null);
   const [form, setForm] = useState(empty);
 
-  const fetch = async () => {
-    const { data, error } = await supabase.from("deadlines" as any).select("*").order("due_date", { ascending: true });
-    if (error) { toast.error("Erro ao carregar prazos"); return; }
-    setDeadlines((data as any[]) ?? []);
+  // Autocomplete state
+  const [contacts, setContacts] = useState<{ name: string }[]>([]);
+  const [teamMembers, setTeamMembers] = useState<{ full_name: string }[]>([]);
+  const [showClientSuggestions, setShowClientSuggestions] = useState(false);
+  const [showLawyerSuggestions, setShowLawyerSuggestions] = useState(false);
+  const clientRef = useRef<HTMLDivElement>(null);
+  const lawyerRef = useRef<HTMLDivElement>(null);
+
+  const fetchData = async () => {
+    const [{ data: dl }, { data: ct }, { data: tm }] = await Promise.all([
+      supabase.from("deadlines").select("*").order("due_date", { ascending: true }),
+      supabase.from("contacts").select("name"),
+      supabase.from("profiles").select("full_name"),
+    ]);
+    setDeadlines((dl as any[]) ?? []);
+    setContacts(ct ?? []);
+    setTeamMembers(tm ?? []);
     setLoading(false);
   };
 
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => { fetchData(); }, []);
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (clientRef.current && !clientRef.current.contains(e.target as Node)) setShowClientSuggestions(false);
+      if (lawyerRef.current && !lawyerRef.current.contains(e.target as Node)) setShowLawyerSuggestions(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const handleSave = async () => {
     if (!form.client_name.trim() || !form.due_date) { toast.error("Cliente e data são obrigatórios"); return; }
@@ -51,18 +74,21 @@ const Deadlines = () => {
       : (await supabase.from("deadlines" as any).insert({ ...form, created_by: user!.id })).error;
     if (err) { toast.error("Erro ao salvar prazo"); return; }
     toast.success(editing ? "Prazo atualizado!" : "Prazo criado!");
-    setDialogOpen(false); setEditing(null); setForm(empty); fetch();
+    setDialogOpen(false); setEditing(null); setForm(empty); fetchData();
   };
 
   const handleToggle = async (d: Deadline) => {
     await supabase.from("deadlines" as any).update({ completed: !d.completed }).eq("id", d.id);
-    toast.success(d.completed ? "Prazo reaberto!" : "Concluído!"); fetch();
+    toast.success(d.completed ? "Prazo reaberto!" : "Concluído!"); fetchData();
   };
 
   const handleDelete = async (id: string) => {
     await supabase.from("deadlines" as any).delete().eq("id", id);
-    toast.success("Prazo excluído!"); fetch();
+    toast.success("Prazo excluído!"); fetchData();
   };
+
+  const filteredClients = contacts.filter(c => c.name.toLowerCase().includes(form.client_name.toLowerCase()));
+  const filteredLawyers = teamMembers.filter(m => m.full_name.toLowerCase().includes(form.lawyer_name.toLowerCase()));
 
   const filtered = deadlines.filter((d) => {
     const match = d.client_name.toLowerCase().includes(search.toLowerCase()) || d.case_number.toLowerCase().includes(search.toLowerCase());
@@ -86,9 +112,49 @@ const Deadlines = () => {
             <div className="space-y-4 pt-2">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2"><Label>Nº do Caso</Label><Input value={form.case_number} onChange={(e) => setForm({ ...form, case_number: e.target.value })} className="bg-secondary border-border" placeholder="#001" /></div>
-                <div className="space-y-2"><Label>Cliente *</Label><Input value={form.client_name} onChange={(e) => setForm({ ...form, client_name: e.target.value })} className="bg-secondary border-border" /></div>
+                <div className="space-y-2" ref={clientRef}>
+                  <Label>Cliente *</Label>
+                  <div className="relative">
+                    <Input
+                      value={form.client_name}
+                      onChange={(e) => { setForm({ ...form, client_name: e.target.value }); setShowClientSuggestions(true); }}
+                      onFocus={() => setShowClientSuggestions(true)}
+                      className="bg-secondary border-border"
+                      placeholder="Digite para buscar..."
+                    />
+                    {showClientSuggestions && form.client_name && filteredClients.length > 0 && (
+                      <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg max-h-40 overflow-y-auto">
+                        {filteredClients.map((c, i) => (
+                          <button key={i} type="button" className="w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors" onClick={() => { setForm({ ...form, client_name: c.name }); setShowClientSuggestions(false); }}>
+                            {c.name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div className="space-y-2"><Label>Advogado</Label><Input value={form.lawyer_name} onChange={(e) => setForm({ ...form, lawyer_name: e.target.value })} className="bg-secondary border-border" /></div>
+              <div className="space-y-2" ref={lawyerRef}>
+                <Label>Responsável</Label>
+                <div className="relative">
+                  <Input
+                    value={form.lawyer_name}
+                    onChange={(e) => { setForm({ ...form, lawyer_name: e.target.value }); setShowLawyerSuggestions(true); }}
+                    onFocus={() => setShowLawyerSuggestions(true)}
+                    className="bg-secondary border-border"
+                    placeholder="Digite para buscar..."
+                  />
+                  {showLawyerSuggestions && form.lawyer_name && filteredLawyers.length > 0 && (
+                    <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg max-h-40 overflow-y-auto">
+                      {filteredLawyers.map((m, i) => (
+                        <button key={i} type="button" className="w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors" onClick={() => { setForm({ ...form, lawyer_name: m.full_name }); setShowLawyerSuggestions(false); }}>
+                          {m.full_name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className="space-y-2"><Label>Tipo de Prazo</Label><Input value={form.deadline_type} onChange={(e) => setForm({ ...form, deadline_type: e.target.value })} className="bg-secondary border-border" placeholder="Ex: Protocolar Petição" /></div>
               <div className="space-y-2"><Label>Data de Vencimento *</Label><Input type="date" value={form.due_date} onChange={(e) => setForm({ ...form, due_date: e.target.value })} className="bg-secondary border-border" /></div>
               <Button className="w-full gold-gradient text-primary-foreground hover:opacity-90" onClick={handleSave}>{editing ? "Salvar Alterações" : "Criar Prazo"}</Button>
@@ -125,7 +191,7 @@ const Deadlines = () => {
             <Table>
               <TableHeader><TableRow className="border-border hover:bg-transparent">
                 <TableHead className="text-muted-foreground">Caso</TableHead><TableHead className="text-muted-foreground">Cliente</TableHead>
-                <TableHead className="text-muted-foreground">Advogado</TableHead><TableHead className="text-muted-foreground">Tipo</TableHead>
+                <TableHead className="text-muted-foreground">Responsável</TableHead><TableHead className="text-muted-foreground">Tipo</TableHead>
                 <TableHead className="text-muted-foreground">Vencimento</TableHead><TableHead className="text-muted-foreground">Status</TableHead>
                 <TableHead className="text-muted-foreground w-24">Ações</TableHead>
               </TableRow></TableHeader>

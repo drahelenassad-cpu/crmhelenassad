@@ -106,7 +106,7 @@ const Cases = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div><h1 className="font-serif text-2xl font-bold">Casos</h1><p className="text-muted-foreground text-sm">Gestão de processos previdenciários</p></div>
+        <div><h1 className="font-serif text-2xl font-bold text-foreground">Casos</h1><p className="text-muted-foreground text-sm">Gestão de processos previdenciários</p></div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="gold-gradient text-primary-foreground hover:opacity-90" onClick={() => { setEditing(null); setForm(empty); setResponsibleSearch(""); }}>

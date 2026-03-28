@@ -41,7 +41,7 @@ const ForgotPassword = () => {
           <h1 className="font-serif text-2xl font-bold gold-text">Assad CRM</h1>
         </div>
 
-        <h2 className="font-serif text-2xl font-bold mb-1">Recuperar Senha</h2>
+        <h2 className="font-serif text-2xl font-bold mb-1 text-foreground">Recuperar Senha</h2>
         <p className="text-muted-foreground text-sm mb-8">
           {sent ? "Verifique seu e-mail para o link de redefinição." : "Informe seu e-mail para receber um link de redefinição."}
         </p>

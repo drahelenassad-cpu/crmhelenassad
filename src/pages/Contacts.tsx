@@ -110,7 +110,7 @@ const Contacts = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-2xl font-bold">Contatos</h1>
+          <h1 className="font-serif text-2xl font-bold text-foreground">Contatos</h1>
           <p className="text-muted-foreground text-sm">Gerencie leads e clientes</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

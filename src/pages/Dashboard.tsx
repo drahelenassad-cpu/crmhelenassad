@@ -75,7 +75,7 @@ const Dashboard = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div><h1 className="font-serif text-2xl font-bold">Dashboard</h1><p className="text-muted-foreground text-sm">Visão geral dos processos e prazos</p></div>
+        <div><h1 className="font-serif text-2xl font-bold text-foreground">Dashboard</h1><p className="text-muted-foreground text-sm">Visão geral dos processos e prazos</p></div>
         <div className="flex gap-2">
           <Button size="sm" variant="outline" className="text-xs" onClick={() => navigate("/contatos")}><UserPlus className="w-3.5 h-3.5 mr-1" /> Novo Lead</Button>
           <Button size="sm" className="text-xs gold-gradient text-primary-foreground hover:opacity-90" onClick={() => navigate("/casos")}><Plus className="w-3.5 h-3.5 mr-1" /> Novo Caso</Button>

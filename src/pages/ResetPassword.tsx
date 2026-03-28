@@ -55,7 +55,7 @@ const ResetPassword = () => {
           <h1 className="font-serif text-2xl font-bold gold-text">Assad CRM</h1>
         </div>
 
-        <h2 className="font-serif text-2xl font-bold mb-1">Nova Senha</h2>
+        <h2 className="font-serif text-2xl font-bold mb-1 text-foreground">Nova Senha</h2>
         <p className="text-muted-foreground text-sm mb-8">Defina sua nova senha abaixo.</p>
 
         <form onSubmit={handleReset} className="space-y-4">

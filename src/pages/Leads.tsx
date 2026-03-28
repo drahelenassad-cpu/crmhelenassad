@@ -34,7 +34,7 @@ const Leads = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-2xl font-bold">Leads</h1>
+          <h1 className="font-serif text-2xl font-bold text-foreground">Leads</h1>
           <p className="text-muted-foreground text-sm">Captação e qualificação de novos clientes</p>
         </div>
         <Button size="sm" className="gold-gradient text-primary-foreground hover:opacity-90">

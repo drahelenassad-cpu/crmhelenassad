@@ -62,8 +62,8 @@ const Register = () => {
             <h1 className="font-serif text-2xl font-bold gold-text">Dra. Helen Assad</h1>
           </div>
 
-          <h2 className="font-serif text-2xl font-bold mb-1">Criar Conta</h2>
-          <p className="text-muted-foreground text-sm mb-8">Registre-se para acessar o sistema</p>
+          <h2 className="font-serif text-2xl font-bold mb-1 text-foreground">Criar Conta</h2>
+          <p className="text-muted-foreground text-sm mb-8 opacity-80">Registre-se para acessar o sistema</p>
 
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="space-y-2">

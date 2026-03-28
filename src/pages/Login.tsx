@@ -53,8 +53,8 @@ const Login = () => {
             <h1 className="font-serif text-2xl font-bold gold-text">Dra. Helen Assad</h1>
           </div>
 
-          <h2 className="font-serif text-2xl font-bold mb-1">Entrar</h2>
-          <p className="text-muted-foreground text-sm mb-8">Acesse sua conta para continuar</p>
+          <h2 className="font-serif text-2xl font-bold mb-1 text-foreground">Entrar</h2>
+          <p className="text-muted-foreground text-sm mb-8 opacity-80">Acesse sua conta para continuar</p>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">

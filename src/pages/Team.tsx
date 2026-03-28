@@ -156,7 +156,7 @@ const Team = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-2xl font-bold">Equipe</h1>
+          <h1 className="font-serif text-2xl font-bold text-foreground">Equipe</h1>
           <p className="text-muted-foreground text-sm">Gerencie os membros, cargos e níveis de acesso</p>
         </div>
         {currentUserRole === "admin" && (

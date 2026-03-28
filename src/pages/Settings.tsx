@@ -40,7 +40,7 @@ const Settings = () => {
 
   return (
     <div className="space-y-6 max-w-3xl">
-      <div><h1 className="font-serif text-2xl font-bold">Configurações</h1><p className="text-muted-foreground text-sm">Preferências do sistema</p></div>
+      <div><h1 className="font-serif text-2xl font-bold text-foreground">Configurações</h1><p className="text-muted-foreground text-sm">Preferências do sistema</p></div>
 
       <Card className="bg-card border-border">
         <CardHeader><CardTitle className="font-serif text-base">Informações do Escritório</CardTitle></CardHeader>

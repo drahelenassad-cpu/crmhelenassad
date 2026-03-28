@@ -9,7 +9,7 @@ export function UserBadge() {
   return (
     <div className="flex items-center gap-2">
       <div className="text-right hidden sm:block">
-        <p className="text-sm font-medium leading-tight">{profile?.full_name || "Usuário"}</p>
+        <p className="text-sm font-medium leading-tight text-foreground">{profile?.full_name || "Usuário"}</p>
         <Badge variant="outline" className="text-[10px] h-4 border-primary text-primary px-1.5">
           {role === "admin" ? "Admin" : "Usuário"}
         </Badge>

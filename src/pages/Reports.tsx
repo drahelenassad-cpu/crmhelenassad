@@ -33,7 +33,7 @@ const Reports = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div><h1 className="font-serif text-2xl font-bold">Relatórios</h1><p className="text-muted-foreground text-sm">Carregando dados...</p></div>
+        <div><h1 className="font-serif text-2xl font-bold text-foreground">Relatórios</h1><p className="text-muted-foreground text-sm">Carregando dados...</p></div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-[300px] rounded-lg" />)}
         </div>
@@ -95,7 +95,7 @@ const Reports = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-serif text-2xl font-bold">Relatórios</h1>
+        <h1 className="font-serif text-2xl font-bold text-foreground">Relatórios</h1>
         <p className="text-muted-foreground text-sm">Análises e métricas em tempo real</p>
       </div>
 

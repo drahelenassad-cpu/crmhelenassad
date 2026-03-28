@@ -54,7 +54,7 @@ const Clients = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div><h1 className="font-serif text-2xl font-bold">Clientes</h1><p className="text-muted-foreground text-sm">Base de dados de clientes ativos</p></div>
+        <div><h1 className="font-serif text-2xl font-bold text-foreground">Clientes</h1><p className="text-muted-foreground text-sm">Base de dados de clientes ativos</p></div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="gold-gradient text-primary-foreground hover:opacity-90" onClick={() => { setEditing(null); setForm(empty); }}>

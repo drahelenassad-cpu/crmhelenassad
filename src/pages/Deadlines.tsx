@@ -100,7 +100,7 @@ const Deadlines = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div><h1 className="font-serif text-2xl font-bold">Painel de Prazos</h1><p className="text-muted-foreground text-sm">Controle centralizado de todos os prazos</p></div>
+        <div><h1 className="font-serif text-2xl font-bold text-foreground">Painel de Prazos</h1><p className="text-muted-foreground text-sm">Controle centralizado de todos os prazos</p></div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="gold-gradient text-primary-foreground hover:opacity-90" onClick={() => { setEditing(null); setForm(empty); }}>

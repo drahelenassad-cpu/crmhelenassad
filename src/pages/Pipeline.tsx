@@ -1,8 +1,9 @@
-import { useEffect, useState, DragEvent } from "react";
+import { useEffect, useState, useCallback, DragEvent } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 
 type Contact = {
   id: string;

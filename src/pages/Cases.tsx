@@ -69,14 +69,15 @@ const Cases = () => {
   const [searchingProcessos, setSearchingProcessos] = useState(false);
   const [processos, setProcessos] = useState<Processo[]>([]);
 
-  const fetchCases = async () => {
+  const fetchCases = useCallback(async () => {
     const { data, error } = await supabase.from("cases" as any).select("*").order("created_at", { ascending: false });
     if (error) { toast.error("Erro ao carregar casos"); return; }
     setCases((data as any[]) ?? []);
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { fetchCases(); }, []);
+  useEffect(() => { fetchCases(); }, [fetchCases]);
+  useRealtimeTable("cases", fetchCases);
 
   useEffect(() => {
     const loadTeam = async () => {

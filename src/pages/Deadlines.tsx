@@ -44,7 +44,7 @@ const Deadlines = () => {
   const clientRef = useRef<HTMLDivElement>(null);
   const lawyerRef = useRef<HTMLDivElement>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     const [{ data: dl }, { data: ct }, { data: tm }] = await Promise.all([
       supabase.from("deadlines").select("*").order("due_date", { ascending: true }),
       supabase.from("contacts").select("name"),
@@ -54,9 +54,10 @@ const Deadlines = () => {
     setContacts(ct ?? []);
     setTeamMembers(tm ?? []);
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, [fetchData]);
+  useRealtimeTable("deadlines", fetchData);
 
   // Close suggestions on outside click
   useEffect(() => {

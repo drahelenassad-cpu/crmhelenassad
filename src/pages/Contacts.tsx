@@ -49,14 +49,15 @@ const Contacts = () => {
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [form, setForm] = useState(emptyContact);
 
-  const fetchContacts = async () => {
+  const fetchContacts = useCallback(async () => {
     const { data, error } = await supabase.from("contacts").select("*").order("created_at", { ascending: false });
     if (error) { toast.error("Erro ao carregar contatos"); return; }
     setContacts((data as unknown as Contact[]) ?? []);
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { fetchContacts(); }, []);
+  useEffect(() => { fetchContacts(); }, [fetchContacts]);
+  useRealtimeTable("contacts", fetchContacts);
 
   const handleSave = async () => {
     if (!form.name.trim()) { toast.error("Nome é obrigatório"); return; }

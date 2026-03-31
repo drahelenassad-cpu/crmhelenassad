@@ -50,12 +50,10 @@ export function NotificationBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [readIds, setReadIds] = useState<Set<string>>(getReadIds);
 
-  useEffect(() => {
-    const load = async () => {
+  const load = useCallback(async () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       const in5days = new Date(today.getTime() + 5 * 86400000).toISOString().split("T")[0];
-      const todayStr = today.toISOString().split("T")[0];
       const yesterday = new Date(Date.now() - 86400000).toISOString();
 
       const [{ data: deadlines }, { data: leads }] = await Promise.all([
@@ -116,10 +114,12 @@ export function NotificationBell() {
       result.sort((a, b) => order[a.type] - order[b.type]);
 
       setNotifications(result);
-    };
-
-    load();
   }, []);
+
+  useEffect(() => { load(); }, [load]);
+  useRealtimeTable("deadlines", load);
+  useRealtimeTable("contacts", load);
+  useRealtimeTable("notifications", load);
 
   const unreadCount = notifications.filter((n) => !readIds.has(n.id)).length;
 

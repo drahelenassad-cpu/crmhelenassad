@@ -326,6 +326,8 @@ export type Database = {
         | "inss_analysis"
         | "medical_exam"
         | "awaiting_decision"
+        | "admin_inss"
+        | "judicial_action"
         | "approved"
         | "denied"
       case_urgency: "green" | "yellow" | "orange" | "red"
@@ -471,6 +473,8 @@ export const Constants = {
         "inss_analysis",
         "medical_exam",
         "awaiting_decision",
+        "admin_inss",
+        "judicial_action",
         "approved",
         "denied",
       ],

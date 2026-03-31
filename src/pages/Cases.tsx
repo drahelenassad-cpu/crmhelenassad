@@ -20,6 +20,7 @@ const stageLabels: Record<string, string> = {
   contract_signed: "Contrato Assinado", document_collection: "Coleta de Documentos",
   petition_filed: "Petição Protocolada", inss_analysis: "Em Análise INSS",
   medical_exam: "Perícia Agendada", awaiting_decision: "Aguardando Decisão",
+  admin_inss: "Aguardando Administrativo INSS", judicial_action: "Aguardando Ação Judicial",
   approved: "Deferido ✅", denied: "Indeferido ❌",
 };
 
@@ -27,6 +28,7 @@ const stageColors: Record<string, string> = {
   contract_signed: "bg-primary/20 text-primary", document_collection: "bg-warning/20 text-warning",
   petition_filed: "bg-success/20 text-success", inss_analysis: "bg-muted text-muted-foreground",
   medical_exam: "bg-critical/20 text-critical", awaiting_decision: "bg-warning/20 text-warning",
+  admin_inss: "bg-accent/20 text-accent-foreground", judicial_action: "bg-primary/20 text-primary",
   approved: "bg-success/20 text-success", denied: "bg-destructive/20 text-destructive",
 };
 

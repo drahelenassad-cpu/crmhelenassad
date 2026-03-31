@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Briefcase, AlertTriangle, Clock, CheckCircle2, XCircle, UserPlus, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 
 type DeadlineCard = { id: string; case_number: string; client_name: string; lawyer_name: string; due_date: string };
 
@@ -36,30 +37,32 @@ const Dashboard = () => {
   const [recentContacts, setRecentContacts] = useState<{ name: string; created_at: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const load = async () => {
-      const [
-        { count: c1 }, { count: c2 }, { count: c3 },
-        { data: dl }, { data: rc },
-      ] = await Promise.all([
-        supabase.from("cases" as any).select("*", { count: "exact", head: true }),
-        supabase.from("contacts").select("*", { count: "exact", head: true }).eq("status", "lead" as any),
-        supabase.from("contacts").select("*", { count: "exact", head: true }).eq("status", "client" as any),
-        supabase.from("deadlines" as any).select("id, case_number, client_name, lawyer_name, due_date").eq("completed", false),
-        supabase.from("contacts").select("name, created_at").order("created_at", { ascending: false }).limit(5),
-      ]);
+  const load = useCallback(async () => {
+    const [
+      { count: c1 }, { count: c2 }, { count: c3 },
+      { data: dl }, { data: rc },
+    ] = await Promise.all([
+      supabase.from("cases" as any).select("*", { count: "exact", head: true }),
+      supabase.from("contacts").select("*", { count: "exact", head: true }).eq("status", "lead" as any),
+      supabase.from("contacts").select("*", { count: "exact", head: true }).eq("status", "client" as any),
+      supabase.from("deadlines" as any).select("id, case_number, client_name, lawyer_name, due_date").eq("completed", false),
+      supabase.from("contacts").select("name, created_at").order("created_at", { ascending: false }).limit(5),
+    ]);
 
-      setTotalCases(c1 ?? 0); setTotalLeads(c2 ?? 0); setTotalClients(c3 ?? 0);
-      const dls = (dl as any[]) ?? [];
-      setCards(dls);
-      setAtencao(dls.filter((d) => getUrgencyColumn(d.due_date) === "Atenção (24h)").length);
-      setCritico(dls.filter((d) => getUrgencyColumn(d.due_date) === "Crítico (40h)").length);
-      setVencido(dls.filter((d) => getUrgencyColumn(d.due_date) === "Escalado").length);
-      setRecentContacts((rc as any[]) ?? []);
-      setLoading(false);
-    };
-    load();
+    setTotalCases(c1 ?? 0); setTotalLeads(c2 ?? 0); setTotalClients(c3 ?? 0);
+    const dls = (dl as any[]) ?? [];
+    setCards(dls);
+    setAtencao(dls.filter((d) => getUrgencyColumn(d.due_date) === "Atenção (24h)").length);
+    setCritico(dls.filter((d) => getUrgencyColumn(d.due_date) === "Crítico (40h)").length);
+    setVencido(dls.filter((d) => getUrgencyColumn(d.due_date) === "Escalado").length);
+    setRecentContacts((rc as any[]) ?? []);
+    setLoading(false);
   }, []);
+
+  useEffect(() => { load(); }, [load]);
+  useRealtimeTable("cases", load);
+  useRealtimeTable("contacts", load);
+  useRealtimeTable("deadlines", load);
 
   if (loading) return <div className="p-8 text-center text-muted-foreground">Carregando dashboard...</div>;
 

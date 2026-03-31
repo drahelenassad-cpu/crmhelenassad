@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { Plus, Search, Pencil, Trash2, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 
 type Deadline = { id: string; case_number: string; client_name: string; lawyer_name: string; deadline_type: string; due_date: string; completed: boolean };
 
@@ -43,7 +44,7 @@ const Deadlines = () => {
   const clientRef = useRef<HTMLDivElement>(null);
   const lawyerRef = useRef<HTMLDivElement>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     const [{ data: dl }, { data: ct }, { data: tm }] = await Promise.all([
       supabase.from("deadlines").select("*").order("due_date", { ascending: true }),
       supabase.from("contacts").select("name"),
@@ -53,9 +54,10 @@ const Deadlines = () => {
     setContacts(ct ?? []);
     setTeamMembers(tm ?? []);
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, [fetchData]);
+  useRealtimeTable("deadlines", fetchData);
 
   // Close suggestions on outside click
   useEffect(() => {

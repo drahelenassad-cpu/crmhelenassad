@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 
 type Contact = {
   id: string;
@@ -48,14 +49,15 @@ const Contacts = () => {
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [form, setForm] = useState(emptyContact);
 
-  const fetchContacts = async () => {
+  const fetchContacts = useCallback(async () => {
     const { data, error } = await supabase.from("contacts").select("*").order("created_at", { ascending: false });
     if (error) { toast.error("Erro ao carregar contatos"); return; }
     setContacts((data as unknown as Contact[]) ?? []);
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { fetchContacts(); }, []);
+  useEffect(() => { fetchContacts(); }, [fetchContacts]);
+  useRealtimeTable("contacts", fetchContacts);
 
   const handleSave = async () => {
     if (!form.name.trim()) { toast.error("Nome é obrigatório"); return; }

@@ -1,8 +1,9 @@
-import { useEffect, useState, DragEvent } from "react";
+import { useEffect, useState, useCallback, DragEvent } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 
 type Contact = {
   id: string;
@@ -27,12 +28,13 @@ const Pipeline = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [draggedId, setDraggedId] = useState<string | null>(null);
 
-  const fetchContacts = async () => {
+  const fetchContacts = useCallback(async () => {
     const { data } = await supabase.from("contacts").select("*").order("created_at", { ascending: false });
     setContacts((data as unknown as Contact[]) ?? []);
-  };
+  }, []);
 
-  useEffect(() => { fetchContacts(); }, []);
+  useEffect(() => { fetchContacts(); }, [fetchContacts]);
+  useRealtimeTable("contacts", fetchContacts);
 
   const handleDragStart = (e: DragEvent, id: string) => {
     setDraggedId(id);

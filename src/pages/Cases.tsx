@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 
 type Case = { id: string; case_number: string; client_name: string; case_type: string; lawyer_name: string; stage: string; urgency: string; notes: string; created_at: string };
 
@@ -68,14 +69,15 @@ const Cases = () => {
   const [searchingProcessos, setSearchingProcessos] = useState(false);
   const [processos, setProcessos] = useState<Processo[]>([]);
 
-  const fetchCases = async () => {
+  const fetchCases = useCallback(async () => {
     const { data, error } = await supabase.from("cases" as any).select("*").order("created_at", { ascending: false });
     if (error) { toast.error("Erro ao carregar casos"); return; }
     setCases((data as any[]) ?? []);
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { fetchCases(); }, []);
+  useEffect(() => { fetchCases(); }, [fetchCases]);
+  useRealtimeTable("cases", fetchCases);
 
   useEffect(() => {
     const loadTeam = async () => {

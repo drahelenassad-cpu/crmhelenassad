@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Briefcase, AlertTriangle, Clock, CheckCircle2, XCircle, UserPlus, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 
 type DeadlineCard = { id: string; case_number: string; client_name: string; lawyer_name: string; due_date: string };
 

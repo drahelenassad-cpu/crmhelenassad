@@ -11,7 +11,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, User, Trash2 } from "lucide-react";
+import { Plus, User, Trash2, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -64,7 +64,7 @@ const positionColors: Record<string, string> = {
 };
 
 const Team = () => {
-  const { role: currentUserRole } = useAuth();
+  const { role: currentUserRole, user: currentUser } = useAuth();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -72,6 +72,9 @@ const Team = () => {
   const [inviteRole, setInviteRole] = useState<"admin" | "user">("user");
   const [invitePosition, setInvitePosition] = useState("");
   const [inviting, setInviting] = useState(false);
+  const [editNameDialogOpen, setEditNameDialogOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+  const [newName, setNewName] = useState("");
 
   const fetchMembers = async () => {
     const [{ data: profiles, error }, { data: roles }] = await Promise.all([
@@ -122,6 +125,29 @@ const Team = () => {
 
     if (error) { toast.error("Erro ao alterar cargo"); return; }
     toast.success("Cargo atualizado!");
+    fetchMembers();
+  };
+
+  const handleChangeName = async () => {
+    if (!editingMember || !newName.trim()) { toast.error("Informe o novo nome"); return; }
+    const { error } = await supabase
+      .from("profiles")
+      .update({ full_name: newName.trim() })
+      .eq("id", editingMember.id);
+
+    if (error) { toast.error("Erro ao alterar nome"); return; }
+
+    // Notify the member about the name change
+    await supabase.from("notifications").insert({
+      user_id: editingMember.id,
+      type: "name_change",
+      message: `Seu nome foi alterado para "${newName.trim()}" pelo administrador.`,
+    });
+
+    toast.success("Nome atualizado com sucesso!");
+    setEditNameDialogOpen(false);
+    setEditingMember(null);
+    setNewName("");
     fetchMembers();
   };
 
@@ -252,6 +278,20 @@ const Team = () => {
                         <User className="w-4 h-4 text-primary" />
                       </div>
                       <span className="font-medium">{m.full_name}</span>
+                      {currentUserRole === "admin" && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                          onClick={() => {
+                            setEditingMember(m);
+                            setNewName(m.full_name === "(sem nome)" ? "" : m.full_name);
+                            setEditNameDialogOpen(true);
+                          }}
+                        >
+                          <Pencil className="w-3 h-3" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{m.email}</TableCell>
@@ -338,6 +378,39 @@ const Team = () => {
           </div>
         </CardContent>
       </Card>
+      {/* Edit Name Dialog */}
+      <Dialog open={editNameDialogOpen} onOpenChange={setEditNameDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-serif">Editar Nome do Membro</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label>Nome Atual</Label>
+              <p className="text-sm text-muted-foreground">{editingMember?.full_name}</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Novo Nome</Label>
+              <Input
+                placeholder="Digite o novo nome"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                className="bg-secondary border-border"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              O membro será notificado sobre a alteração do nome.
+            </p>
+            <Button
+              className="w-full gold-gradient text-primary-foreground hover:opacity-90"
+              onClick={handleChangeName}
+              disabled={!newName.trim()}
+            >
+              Salvar Alteração
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

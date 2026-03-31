@@ -278,6 +278,20 @@ const Team = () => {
                         <User className="w-4 h-4 text-primary" />
                       </div>
                       <span className="font-medium">{m.full_name}</span>
+                      {currentUserRole === "admin" && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                          onClick={() => {
+                            setEditingMember(m);
+                            setNewName(m.full_name === "(sem nome)" ? "" : m.full_name);
+                            setEditNameDialogOpen(true);
+                          }}
+                        >
+                          <Pencil className="w-3 h-3" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{m.email}</TableCell>

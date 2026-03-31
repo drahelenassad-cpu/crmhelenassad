@@ -11,6 +11,7 @@ import { Plus, Search, Pencil, Trash2, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 
 type Deadline = { id: string; case_number: string; client_name: string; lawyer_name: string; deadline_type: string; due_date: string; completed: boolean };
 

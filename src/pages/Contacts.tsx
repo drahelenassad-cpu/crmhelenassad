@@ -12,6 +12,7 @@ import { Plus, Search, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 
 type Contact = {
   id: string;

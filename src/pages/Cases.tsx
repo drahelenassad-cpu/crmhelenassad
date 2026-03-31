@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 
 type Case = { id: string; case_number: string; client_name: string; case_type: string; lawyer_name: string; stage: string; urgency: string; notes: string; created_at: string };
 

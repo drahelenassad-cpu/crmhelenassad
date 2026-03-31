@@ -128,6 +128,29 @@ const Team = () => {
     fetchMembers();
   };
 
+  const handleChangeName = async () => {
+    if (!editingMember || !newName.trim()) { toast.error("Informe o novo nome"); return; }
+    const { error } = await supabase
+      .from("profiles")
+      .update({ full_name: newName.trim() })
+      .eq("id", editingMember.id);
+
+    if (error) { toast.error("Erro ao alterar nome"); return; }
+
+    // Notify the member about the name change
+    await supabase.from("notifications").insert({
+      user_id: editingMember.id,
+      type: "name_change",
+      message: `Seu nome foi alterado para "${newName.trim()}" pelo administrador.`,
+    });
+
+    toast.success("Nome atualizado com sucesso!");
+    setEditNameDialogOpen(false);
+    setEditingMember(null);
+    setNewName("");
+    fetchMembers();
+  };
+
   const handleInvite = async () => {
     if (!inviteEmail.trim()) { toast.error("Informe o e-mail"); return; }
     setInviting(true);

@@ -378,6 +378,39 @@ const Team = () => {
           </div>
         </CardContent>
       </Card>
+      {/* Edit Name Dialog */}
+      <Dialog open={editNameDialogOpen} onOpenChange={setEditNameDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-serif">Editar Nome do Membro</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label>Nome Atual</Label>
+              <p className="text-sm text-muted-foreground">{editingMember?.full_name}</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Novo Nome</Label>
+              <Input
+                placeholder="Digite o novo nome"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                className="bg-secondary border-border"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              O membro será notificado sobre a alteração do nome.
+            </p>
+            <Button
+              className="w-full gold-gradient text-primary-foreground hover:opacity-90"
+              onClick={handleChangeName}
+              disabled={!newName.trim()}
+            >
+              Salvar Alteração
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

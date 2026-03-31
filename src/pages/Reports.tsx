@@ -9,6 +9,7 @@ const stageLabels: Record<string, string> = {
   contract_signed: "Contrato", document_collection: "Documentos",
   petition_filed: "Protocolado", inss_analysis: "Análise INSS",
   medical_exam: "Perícia", awaiting_decision: "Decisão",
+  admin_inss: "Aguardando INSS", judicial_action: "Ação Judicial",
   approved: "Deferido", denied: "Indeferido",
 };
 

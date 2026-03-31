@@ -64,7 +64,7 @@ const positionColors: Record<string, string> = {
 };
 
 const Team = () => {
-  const { role: currentUserRole } = useAuth();
+  const { role: currentUserRole, user: currentUser } = useAuth();
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -72,6 +72,9 @@ const Team = () => {
   const [inviteRole, setInviteRole] = useState<"admin" | "user">("user");
   const [invitePosition, setInvitePosition] = useState("");
   const [inviting, setInviting] = useState(false);
+  const [editNameDialogOpen, setEditNameDialogOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+  const [newName, setNewName] = useState("");
 
   const fetchMembers = async () => {
     const [{ data: profiles, error }, { data: roles }] = await Promise.all([

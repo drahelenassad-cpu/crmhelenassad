@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -6,18 +6,17 @@ import { supabase } from "@/integrations/supabase/client";
  * an INSERT, UPDATE or DELETE happens.
  */
 export function useRealtimeTable(table: string, onUpdate: () => void) {
+  const cb = useRef(onUpdate);
+  cb.current = onUpdate;
+
   useEffect(() => {
     const channel = supabase
-      .channel(`realtime:${table}:${crypto.randomUUID()}`)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table },
-        () => onUpdate()
-      )
+      .channel(`realtime-${table}-${crypto.randomUUID()}`)
+      .on("postgres_changes", { event: "*", schema: "public", table }, () => cb.current())
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [table, onUpdate]);
+  }, [table]);
 }

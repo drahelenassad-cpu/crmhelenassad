@@ -118,18 +118,20 @@ const Cases = () => {
     toast.success("Caso excluído!"); fetchCases();
   };
 
-  const formatCpf = (value: string) => {
-    const digits = value.replace(/\D/g, "").slice(0, 11);
-    if (digits.length <= 3) return digits;
-    if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
-    if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
-    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+  const formatProcessoNumber = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 20);
+    if (digits.length <= 7) return digits;
+    if (digits.length <= 9) return `${digits.slice(0, 7)}-${digits.slice(7)}`;
+    if (digits.length <= 13) return `${digits.slice(0, 7)}-${digits.slice(7, 9)}.${digits.slice(9)}`;
+    if (digits.length <= 14) return `${digits.slice(0, 7)}-${digits.slice(7, 9)}.${digits.slice(9, 13)}.${digits.slice(13)}`;
+    if (digits.length <= 15) return `${digits.slice(0, 7)}-${digits.slice(7, 9)}.${digits.slice(9, 13)}.${digits.slice(13, 14)}.${digits.slice(14)}`;
+    return `${digits.slice(0, 7)}-${digits.slice(7, 9)}.${digits.slice(9, 13)}.${digits.slice(13, 14)}.${digits.slice(14, 16)}.${digits.slice(16)}`;
   };
 
   const handleSearchDatajud = async () => {
-    const cleanCpf = cpfSearch.replace(/\D/g, "");
-    if (cleanCpf.length !== 11) {
-      toast.error("Digite um CPF válido com 11 dígitos");
+    const cleanNumero = processoSearch.replace(/\D/g, "");
+    if (cleanNumero.length < 5) {
+      toast.error("Digite um número de processo válido");
       return;
     }
 
@@ -138,7 +140,7 @@ const Cases = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke("datajud-search", {
-        body: { cpf: cleanCpf },
+        body: { numeroProcesso: cleanNumero },
       });
 
       if (error) throw error;
@@ -147,9 +149,9 @@ const Cases = () => {
         setProcessos(data.processos);
         toast.success(`${data.total} processo(s) encontrado(s)!`);
       } else {
-        toast.info("Nenhum processo encontrado para este CPF.");
+        toast.info("Nenhum processo encontrado com este número.");
       }
-    } catch (err) {
+    } catch {
       toast.error("Erro ao buscar processos no DataJud");
     } finally {
       setSearchingProcessos(false);

@@ -278,7 +278,7 @@ const Cases = () => {
                   </div>
                 )}
 
-                {!searchingProcessos && processos.length === 0 && cpfSearch.replace(/\D/g, "").length === 11 && (
+                {!searchingProcessos && processos.length === 0 && processoSearch.replace(/\D/g, "").length >= 5 && (
                   <div className="text-center py-6">
                     <FileSearch className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
                     <p className="text-muted-foreground text-sm">Clique em "Buscar" para consultar processos</p>

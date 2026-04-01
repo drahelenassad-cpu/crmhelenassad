@@ -91,12 +91,9 @@ serve(async (req) => {
         });
 
         const statusCode = response.status;
-        const responseText = await response.text();
-        console.log(`[${trib}] status=${statusCode} body=${responseText.substring(0, 500)}`);
 
         if (statusCode === 200) {
-          try {
-            const data = JSON.parse(responseText);
+          const data = await response.json();
             if (data.hits?.hits?.length > 0) {
               allHits.push(
                 ...data.hits.hits.map((hit: any) => ({

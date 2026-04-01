@@ -29,7 +29,6 @@ serve(async (req) => {
       });
     }
 
-    // Clean - only digits
     const cleanNumero = numeroProcesso.replace(/\D/g, "");
     if (cleanNumero.length < 5) {
       return new Response(JSON.stringify({ error: "Número do processo muito curto" }), {
@@ -38,7 +37,6 @@ serve(async (req) => {
       });
     }
 
-    // List of tribunal endpoints to search
     const tribunais = tribunal
       ? [tribunal]
       : [
@@ -90,19 +88,16 @@ serve(async (req) => {
           body: JSON.stringify(body),
         });
 
-        const statusCode = response.status;
-
-        if (statusCode === 200) {
+        if (response.ok) {
           const data = await response.json();
-            if (data.hits?.hits?.length > 0) {
-              allHits.push(
-                ...data.hits.hits.map((hit: any) => ({
-                  ...hit._source,
-                  _tribunal: trib,
-                }))
-              );
-            }
-          } catch {}
+          if (data.hits?.hits?.length > 0) {
+            allHits.push(
+              ...data.hits.hits.map((hit: any) => ({
+                ...hit._source,
+                _tribunal: trib,
+              }))
+            );
+          }
         }
       } catch {
         // Skip tribunals that fail
@@ -115,7 +110,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({ processos: allHits, total: allHits.length }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (err) {
+  } catch {
     return new Response(JSON.stringify({ error: "Erro interno ao buscar processos" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

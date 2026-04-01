@@ -20,19 +20,19 @@ serve(async (req) => {
       });
     }
 
-    const { cpf, tribunal } = await req.json();
+    const { numeroProcesso, tribunal } = await req.json();
 
-    if (!cpf || typeof cpf !== "string") {
-      return new Response(JSON.stringify({ error: "CPF é obrigatório" }), {
+    if (!numeroProcesso || typeof numeroProcesso !== "string") {
+      return new Response(JSON.stringify({ error: "Número do processo é obrigatório" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Clean CPF - only digits
-    const cleanCpf = cpf.replace(/\D/g, "");
-    if (cleanCpf.length !== 11) {
-      return new Response(JSON.stringify({ error: "CPF inválido - deve conter 11 dígitos" }), {
+    // Clean - only digits
+    const cleanNumero = numeroProcesso.replace(/\D/g, "");
+    if (cleanNumero.length < 5) {
+      return new Response(JSON.stringify({ error: "Número do processo muito curto" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -50,6 +50,14 @@ serve(async (req) => {
           "api_publica_tjsp",
           "api_publica_tjrj",
           "api_publica_tjmg",
+          "api_publica_tjrs",
+          "api_publica_tjpr",
+          "api_publica_tjsc",
+          "api_publica_tjba",
+          "api_publica_tjpe",
+          "api_publica_tjce",
+          "api_publica_tjdft",
+          "api_publica_stj",
         ];
 
     const allHits: any[] = [];
@@ -60,17 +68,12 @@ serve(async (req) => {
 
         const body = {
           query: {
-            bool: {
-              must: [
-                {
-                  match: {
-                    "dadosBasicos.polo.parte.pessoa.documento.codigoDocumento": cleanCpf,
-                  },
-                },
-              ],
+            match: {
+              numeroProcesso: cleanNumero,
             },
           },
-          size: 20,
+          size: 10,
+          sort: [{ "@timestamp": "desc" }],
         };
 
         const response = await fetch(url, {
@@ -96,6 +99,9 @@ serve(async (req) => {
       } catch {
         // Skip tribunals that fail
       }
+
+      // Stop early if we found results
+      if (allHits.length > 0) break;
     }
 
     return new Response(JSON.stringify({ processos: allHits, total: allHits.length }), {

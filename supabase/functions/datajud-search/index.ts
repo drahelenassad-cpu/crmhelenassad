@@ -68,8 +68,13 @@ serve(async (req) => {
 
         const body = {
           query: {
-            match: {
-              numeroProcesso: cleanNumero,
+            bool: {
+              should: [
+                { term: { numeroProcesso: cleanNumero } },
+                { match_phrase: { numeroProcesso: cleanNumero } },
+                { match: { numeroProcesso: cleanNumero } },
+              ],
+              minimum_should_match: 1,
             },
           },
           size: 10,

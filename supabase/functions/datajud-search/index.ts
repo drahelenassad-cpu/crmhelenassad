@@ -85,7 +85,28 @@ serve(async (req) => {
           body: JSON.stringify(body),
         });
 
-        if (response.ok) {
+        // If APIKey auth fails, try Basic auth
+        if (!response.ok && response.status === 401) {
+          const retryResponse = await fetch(url, {
+            method: "POST",
+            headers: {
+              "Authorization": `Basic ${apiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+          });
+          if (retryResponse.ok) {
+            const data = await retryResponse.json();
+            if (data.hits?.hits?.length > 0) {
+              allHits.push(
+                ...data.hits.hits.map((hit: any) => ({
+                  ...hit._source,
+                  _tribunal: trib,
+                }))
+              );
+            }
+          }
+        } else if (response.ok) {
           const data = await response.json();
           if (data.hits?.hits?.length > 0) {
             allHits.push(

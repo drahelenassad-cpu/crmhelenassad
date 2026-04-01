@@ -85,18 +85,13 @@ serve(async (req) => {
           body: JSON.stringify(body),
         });
 
-        // If APIKey auth fails, try Basic auth
-        if (!response.ok && response.status === 401) {
-          const retryResponse = await fetch(url, {
-            method: "POST",
-            headers: {
-              "Authorization": `Basic ${apiKey}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
-          });
-          if (retryResponse.ok) {
-            const data = await retryResponse.json();
+        const statusCode = response.status;
+        const responseText = await response.text();
+        console.log(`[${trib}] status=${statusCode} body=${responseText.substring(0, 500)}`);
+
+        if (statusCode === 200) {
+          try {
+            const data = JSON.parse(responseText);
             if (data.hits?.hits?.length > 0) {
               allHits.push(
                 ...data.hits.hits.map((hit: any) => ({
@@ -105,17 +100,7 @@ serve(async (req) => {
                 }))
               );
             }
-          }
-        } else if (response.ok) {
-          const data = await response.json();
-          if (data.hits?.hits?.length > 0) {
-            allHits.push(
-              ...data.hits.hits.map((hit: any) => ({
-                ...hit._source,
-                _tribunal: trib,
-              }))
-            );
-          }
+          } catch {}
         }
       } catch {
         // Skip tribunals that fail

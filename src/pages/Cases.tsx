@@ -64,7 +64,7 @@ const Cases = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   // DataJud search
-  const [cpfSearch, setCpfSearch] = useState("");
+  const [processoSearch, setProcessoSearch] = useState("");
   const [datajudOpen, setDatajudOpen] = useState(false);
   const [searchingProcessos, setSearchingProcessos] = useState(false);
   const [processos, setProcessos] = useState<Processo[]>([]);

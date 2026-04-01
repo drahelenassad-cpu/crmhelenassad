@@ -197,8 +197,8 @@ const Cases = () => {
         <div className="flex gap-2">
           <Dialog open={datajudOpen} onOpenChange={setDatajudOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-primary/10" onClick={() => { setCpfSearch(""); setProcessos([]); }}>
-                <FileSearch className="w-4 h-4 mr-1" /> Buscar por CPF
+              <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-primary/10" onClick={() => { setProcessoSearch(""); setProcessos([]); }}>
+                <FileSearch className="w-4 h-4 mr-1" /> Buscar Processo
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -206,11 +206,11 @@ const Cases = () => {
               <div className="space-y-4 pt-2">
                 <div className="flex gap-2">
                   <div className="flex-1 space-y-2">
-                    <Label>CPF do Cliente</Label>
+                    <Label>Número do Processo</Label>
                     <Input
-                      placeholder="000.000.000-00"
-                      value={cpfSearch}
-                      onChange={(e) => setCpfSearch(formatCpf(e.target.value))}
+                      placeholder="0000832-35.2018.4.01.3202"
+                      value={processoSearch}
+                      onChange={(e) => setProcessoSearch(formatProcessoNumber(e.target.value))}
                       className="bg-secondary border-border text-foreground"
                     />
                   </div>

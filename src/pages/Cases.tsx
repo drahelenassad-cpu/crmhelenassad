@@ -64,7 +64,7 @@ const Cases = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   // DataJud search
-  const [cpfSearch, setCpfSearch] = useState("");
+  const [processoSearch, setProcessoSearch] = useState("");
   const [datajudOpen, setDatajudOpen] = useState(false);
   const [searchingProcessos, setSearchingProcessos] = useState(false);
   const [processos, setProcessos] = useState<Processo[]>([]);
@@ -118,18 +118,20 @@ const Cases = () => {
     toast.success("Caso excluído!"); fetchCases();
   };
 
-  const formatCpf = (value: string) => {
-    const digits = value.replace(/\D/g, "").slice(0, 11);
-    if (digits.length <= 3) return digits;
-    if (digits.length <= 6) return `${digits.slice(0, 3)}.${digits.slice(3)}`;
-    if (digits.length <= 9) return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6)}`;
-    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9)}`;
+  const formatProcessoNumber = (value: string) => {
+    const digits = value.replace(/\D/g, "").slice(0, 20);
+    if (digits.length <= 7) return digits;
+    if (digits.length <= 9) return `${digits.slice(0, 7)}-${digits.slice(7)}`;
+    if (digits.length <= 13) return `${digits.slice(0, 7)}-${digits.slice(7, 9)}.${digits.slice(9)}`;
+    if (digits.length <= 14) return `${digits.slice(0, 7)}-${digits.slice(7, 9)}.${digits.slice(9, 13)}.${digits.slice(13)}`;
+    if (digits.length <= 15) return `${digits.slice(0, 7)}-${digits.slice(7, 9)}.${digits.slice(9, 13)}.${digits.slice(13, 14)}.${digits.slice(14)}`;
+    return `${digits.slice(0, 7)}-${digits.slice(7, 9)}.${digits.slice(9, 13)}.${digits.slice(13, 14)}.${digits.slice(14, 16)}.${digits.slice(16)}`;
   };
 
   const handleSearchDatajud = async () => {
-    const cleanCpf = cpfSearch.replace(/\D/g, "");
-    if (cleanCpf.length !== 11) {
-      toast.error("Digite um CPF válido com 11 dígitos");
+    const cleanNumero = processoSearch.replace(/\D/g, "");
+    if (cleanNumero.length < 5) {
+      toast.error("Digite um número de processo válido");
       return;
     }
 
@@ -138,7 +140,7 @@ const Cases = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke("datajud-search", {
-        body: { cpf: cleanCpf },
+        body: { numeroProcesso: cleanNumero },
       });
 
       if (error) throw error;
@@ -147,9 +149,9 @@ const Cases = () => {
         setProcessos(data.processos);
         toast.success(`${data.total} processo(s) encontrado(s)!`);
       } else {
-        toast.info("Nenhum processo encontrado para este CPF.");
+        toast.info("Nenhum processo encontrado com este número.");
       }
-    } catch (err) {
+    } catch {
       toast.error("Erro ao buscar processos no DataJud");
     } finally {
       setSearchingProcessos(false);
@@ -195,8 +197,8 @@ const Cases = () => {
         <div className="flex gap-2">
           <Dialog open={datajudOpen} onOpenChange={setDatajudOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-primary/10" onClick={() => { setCpfSearch(""); setProcessos([]); }}>
-                <FileSearch className="w-4 h-4 mr-1" /> Buscar por CPF
+              <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-primary/10" onClick={() => { setProcessoSearch(""); setProcessos([]); }}>
+                <FileSearch className="w-4 h-4 mr-1" /> Buscar Processo
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -204,11 +206,11 @@ const Cases = () => {
               <div className="space-y-4 pt-2">
                 <div className="flex gap-2">
                   <div className="flex-1 space-y-2">
-                    <Label>CPF do Cliente</Label>
+                    <Label>Número do Processo</Label>
                     <Input
-                      placeholder="000.000.000-00"
-                      value={cpfSearch}
-                      onChange={(e) => setCpfSearch(formatCpf(e.target.value))}
+                      placeholder="0000832-35.2018.4.01.3202"
+                      value={processoSearch}
+                      onChange={(e) => setProcessoSearch(formatProcessoNumber(e.target.value))}
                       className="bg-secondary border-border text-foreground"
                     />
                   </div>
@@ -276,7 +278,7 @@ const Cases = () => {
                   </div>
                 )}
 
-                {!searchingProcessos && processos.length === 0 && cpfSearch.replace(/\D/g, "").length === 11 && (
+                {!searchingProcessos && processos.length === 0 && processoSearch.replace(/\D/g, "").length >= 5 && (
                   <div className="text-center py-6">
                     <FileSearch className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
                     <p className="text-muted-foreground text-sm">Clique em "Buscar" para consultar processos</p>
